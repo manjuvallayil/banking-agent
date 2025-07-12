@@ -1,0 +1,5 @@
+Date,Description,Amount,Type
+2024-01-01,Salary,5000,Credit
+2024-01-05,Rent,-1500,Debit
+2024-01-10,Groceries,-250,Debit
+2024-01-15,Freelance,2000,Credit
