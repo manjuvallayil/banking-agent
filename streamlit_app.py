@@ -18,7 +18,7 @@ st.title("🏦 Banking Insight Agent")
 uploaded_file = st.file_uploader("Upload a bank statement", type=["csv", "pdf"])
 st.info("✅ This app processes files locally and does not upload any data to external servers. Files are machine-read only and never viewed by a human.")
 
-query = st.text_input("Ask a question about the statement")
+query = st.text_input("What would you like to know from this statement before making a funding decision?")
 
 if uploaded_file and query:
     st.info("🧠 Processing your question privately...")
