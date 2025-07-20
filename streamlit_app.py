@@ -1,8 +1,7 @@
 import streamlit as st
-from langchain_community.llms import Ollama
+from langchain.llms import HuggingFaceHub
 import pandas as pd
 import fitz  # PyMuPDF
-import io
 
 # 🔍 Utility to extract text from PDF
 def extract_text_from_pdf(uploaded_file):
@@ -16,21 +15,22 @@ st.set_page_config(page_title="Banking Agent", layout="wide")
 st.title("🏦 Banking Insight Agent")
 
 uploaded_file = st.file_uploader("Upload a bank statement", type=["csv", "pdf"])
-st.info("✅ This app processes files locally and does not upload any data to external servers. Files are machine-read only and never viewed by a human.")
+st.info("✅ This app processes files within the cloud environment and does not store any data permanently. Files are machine-read only and never viewed by a human.")
 
-query = st.text_input("What would you like to know from this statement before making a funding decision?", placeholder="Enter your query here...")
+query = st.text_input(
+    "What would you like to know from this statement before making a funding decision?",
+    placeholder="Enter your query here..."
+)
 
 if uploaded_file and query:
-    st.info("🧠 Processing your question privately...")
+    st.info("🧠 Processing your question...")
 
-    # Extract context based on file type
+    # Extract context
     if uploaded_file.name.endswith(".pdf"):
         context = extract_text_from_pdf(uploaded_file)
-
     elif uploaded_file.name.endswith(".csv"):
         df = pd.read_csv(uploaded_file)
         context = df.to_csv(index=False)
-
     else:
         st.error("Unsupported file type.")
         st.stop()
@@ -38,10 +38,12 @@ if uploaded_file and query:
     # Prepare the prompt
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
-    # Call the local model
-    llm = Ollama(model="mistral")
-    response = llm.invoke(prompt)
+    # Hosted model via Hugging Face Hub
+    llm = HuggingFaceHub(
+        repo_id="google/flan-t5-base", 
+        model_kwargs={"temperature": 0.5, "max_length": 512}
+    )
+    response = llm(prompt)
 
-    # Show the response
     st.markdown("### 💡 Answer")
     st.write(response)
