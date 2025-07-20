@@ -1,19 +1,31 @@
-import os
 import streamlit as st
 import pandas as pd
 import fitz  # PyMuPDF
-from huggingface_hub import InferenceClient
+import requests
 
-# Load the token securely from Streamlit Secrets
+# 🔐 Load Hugging Face token from secrets
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
+API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"
+headers = {"Authorization": f"Bearer {hf_token}"}
 
-# Initialize the Hugging Face InferenceClient with a supported model
-client = InferenceClient(
-    model="google/flan-t5-small",
-    token=hf_token
-)
+# 🧠 Query the Hugging Face Inference API
+def query_huggingface(prompt):
+    response = requests.post(API_URL, headers=headers, json={
+        "inputs": prompt,
+        "parameters": {
+            "max_new_tokens": 150,
+            "temperature": 0.5
+        }
+    })
+    result = response.json()
+    if isinstance(result, list) and "generated_text" in result[0]:
+        return result[0]["generated_text"]
+    elif isinstance(result, dict) and "error" in result:
+        return f"❌ Error from model: {result['error']}"
+    else:
+        return "⚠️ Unexpected response format."
 
-# Utility to extract text from PDF
+# 📄 Extract text from uploaded PDF
 def extract_text_from_pdf(uploaded_file):
     text = ""
     with fitz.open(stream=uploaded_file.read(), filetype="pdf") as doc:
@@ -21,21 +33,22 @@ def extract_text_from_pdf(uploaded_file):
             text += page.get_text()
     return text
 
+# 🧾 Streamlit UI
 st.set_page_config(page_title="Banking Agent", layout="wide")
 st.title("🏦 Banking Insight Agent")
 
-uploaded_file = st.file_uploader("Upload a bank statement", type=["csv", "pdf"])
+uploaded_file = st.file_uploader("Upload a bank statement (CSV or PDF)", type=["csv", "pdf"])
 st.info("✅ This app processes files within the cloud environment and does not store any data permanently. Files are machine-read only and never viewed by a human.")
 
 query = st.text_input(
     "What would you like to know from this statement before making a funding decision?",
-    placeholder="Enter your query here..."
+    placeholder="Enter your question here..."
 )
 
 if uploaded_file and query:
     st.info("🧠 Processing your question...")
 
-    # Extract context from the uploaded file
+    # Get context from the uploaded file
     if uploaded_file.name.endswith(".pdf"):
         context = extract_text_from_pdf(uploaded_file)
     elif uploaded_file.name.endswith(".csv"):
@@ -45,15 +58,11 @@ if uploaded_file and query:
         st.error("Unsupported file type.")
         st.stop()
 
-    # Prepare the prompt for the model
+    # Construct the prompt
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
-    # Get the response from Hugging Face Inference API
-    response = response = client.text_generation(
-        prompt=prompt,
-        max_new_tokens=150,
-        temperature=0.5
-    )
+    # Get the response
+    response = query_huggingface(prompt)
 
     st.markdown("### 💡 Answer")
     st.write(response)
