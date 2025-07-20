@@ -4,15 +4,16 @@ import pandas as pd
 import fitz  # PyMuPDF
 from huggingface_hub import InferenceClient
 
-# Load the token securely
+# Load the token securely from Streamlit Secrets
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
-# Initialize the Hugging Face InferenceClient
+# Initialize the Hugging Face InferenceClient with a publicly supported model
 client = InferenceClient(
-    model="tiiuae/falcon-rw-1b", token=hf_token
+    model="bigscience/bloom-560m",
+    token=hf_token
 )
 
-# 🔍 Utility to extract text from PDF
+# Utility to extract text from PDF
 def extract_text_from_pdf(uploaded_file):
     text = ""
     with fitz.open(stream=uploaded_file.read(), filetype="pdf") as doc:
@@ -34,7 +35,7 @@ query = st.text_input(
 if uploaded_file and query:
     st.info("🧠 Processing your question...")
 
-    # Extract context
+    # Extract context from the uploaded file
     if uploaded_file.name.endswith(".pdf"):
         context = extract_text_from_pdf(uploaded_file)
     elif uploaded_file.name.endswith(".csv"):
@@ -44,13 +45,13 @@ if uploaded_file and query:
         st.error("Unsupported file type.")
         st.stop()
 
-    # Prepare the prompt
+    # Prepare the prompt for the model
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
     # Get the response from Hugging Face Inference API
     response = client.text_generation(
         prompt=prompt,
-        max_new_tokens=200,
+        max_new_tokens=150,
         temperature=0.5
     )
 
