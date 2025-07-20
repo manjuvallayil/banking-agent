@@ -5,7 +5,7 @@ import requests
 
 # 🔐 Load Hugging Face token from secrets
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"
+API_URL = "https://api-inference.huggingface.co/models/bigscience/mt0-small"
 headers = {"Authorization": f"Bearer {hf_token}"}
 
 # 🧠 Query the Hugging Face Inference API
