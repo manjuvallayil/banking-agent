@@ -2,17 +2,14 @@ import os
 import streamlit as st
 import pandas as pd
 import fitz  # PyMuPDF
-from langchain_community.llms import HuggingFaceHub
-
+from huggingface_hub import InferenceClient
 
 # Load the token securely
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-# Initialize the model
-llm = HuggingFaceHub(
-    repo_id="google/flan-t5-large",   # or any other valid model
-    model_kwargs={"temperature": 0.5, "max_length": 512},
-    huggingfacehub_api_token=hf_token,
-    task="text2text-generation"       # ✅ Important: specify valid task
+
+# Initialize the Hugging Face InferenceClient
+client = InferenceClient(
+    model="google/flan-t5-large", token=hf_token
 )
 
 # 🔍 Utility to extract text from PDF
@@ -50,8 +47,12 @@ if uploaded_file and query:
     # Prepare the prompt
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
-    # Hosted model via Hugging Face Hub
-    response = llm.invoke(prompt)
+    # Get the response from Hugging Face Inference API
+    response = client.text_generation(
+        prompt=prompt,
+        max_new_tokens=200,
+        temperature=0.5
+    )
 
     st.markdown("### 💡 Answer")
     st.write(response)
