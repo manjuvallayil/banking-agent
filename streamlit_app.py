@@ -5,7 +5,7 @@ import requests
 
 # 🔐 Load Hugging Face token from secrets
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
-API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-small"
+API_URL = "https://api-inference.huggingface.co/models/google/flan-t5-base"
 headers = {"Authorization": f"Bearer {hf_token}"}
 
 # 🧠 Query the Hugging Face Inference API
@@ -13,27 +13,17 @@ def query_huggingface(prompt):
     try:
         response = requests.post(API_URL, headers=headers, json={
             "inputs": prompt,
-            "parameters": {
-                "max_new_tokens": 150,
-                "temperature": 0.5
-            }
+            "parameters": {"max_new_tokens": 150}
         })
 
         if response.status_code == 503:
-            return "⏳ Model is loading. Please wait a few seconds and try again."
+            return "⏳ Model is loading. Please try again shortly."
         if response.status_code != 200:
             return f"❌ API returned status {response.status_code}: {response.text}"
 
         result = response.json()
-        if isinstance(result, list) and "generated_text" in result[0]:
-            return result[0]["generated_text"]
-        elif isinstance(result, dict) and "error" in result:
-            return f"❌ Error from model: {result['error']}"
-        else:
-            return "⚠️ Unexpected response format."
+        return result[0]["generated_text"] if isinstance(result, list) else "⚠️ Unexpected format."
 
-    except requests.exceptions.JSONDecodeError:
-        return "❌ Failed to decode response (model may still be loading)."
     except Exception as e:
         return f"❌ Request failed: {str(e)}"
 
