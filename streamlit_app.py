@@ -1,4 +1,3 @@
-import os
 import streamlit as st
 import pandas as pd
 import fitz  # PyMuPDF
@@ -7,9 +6,9 @@ from huggingface_hub import InferenceClient
 # Load the token securely from Streamlit Secrets
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
-# Initialize the Hugging Face InferenceClient with a publicly supported model
+# Initialize the Hugging Face InferenceClient with the GPT-2 model
 client = InferenceClient(
-    model="bigscience/bloom-560m",
+    model="gpt2",
     token=hf_token
 )
 
