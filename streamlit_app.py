@@ -51,7 +51,7 @@ if uploaded_file and query:
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
     # Hosted model via Hugging Face Hub
-    response = llm(prompt)
+    response = llm.invoke(prompt)
 
     st.markdown("### 💡 Answer")
     st.write(response)
