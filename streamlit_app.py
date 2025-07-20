@@ -3,9 +3,10 @@ import pandas as pd
 import fitz  # PyMuPDF
 from transformers import pipeline
 
-# Load the text2text-generation pipeline locally
+# Initialize text2text-generation pipeline with a small, fast model
 generator = pipeline("text2text-generation", model="google/flan-t5-small")
 
+# Utility to extract text from PDF
 def extract_text_from_pdf(uploaded_file):
     text = ""
     with fitz.open(stream=uploaded_file.read(), filetype="pdf") as doc:
@@ -17,7 +18,7 @@ st.set_page_config(page_title="Banking Agent", layout="wide")
 st.title("🏦 Banking Insight Agent")
 
 uploaded_file = st.file_uploader("Upload a bank statement (CSV or PDF)", type=["csv", "pdf"])
-st.info("✅ All processing happens locally; no data is uploaded.")
+st.info("✅ All processing happens locally; no data is uploaded or stored.")
 
 query = st.text_input(
     "What would you like to know from this statement before making a funding decision?",
