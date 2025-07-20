@@ -9,7 +9,7 @@ hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
 # Initialize the Hugging Face InferenceClient
 client = InferenceClient(
-    model="gpt2", token=hf_token
+    model="tiiuae/falcon-rw-1b", token=hf_token
 )
 
 # 🔍 Utility to extract text from PDF
