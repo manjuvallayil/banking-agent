@@ -9,7 +9,7 @@ hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
 # Initialize the Hugging Face InferenceClient
 client = InferenceClient(
-    model="google/flan-t5-large", token=hf_token
+    model="tiiuae/falcon-7b-instruct", token=hf_token
 )
 
 # 🔍 Utility to extract text from PDF
@@ -48,11 +48,11 @@ if uploaded_file and query:
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
     # Get the response from Hugging Face Inference API
-    response = client.text2text_generation(
-    prompt=prompt,
-    max_new_tokens=200,
-    temperature=0.5
-)
+    response = client.text_generation(
+        prompt=prompt,
+        max_new_tokens=200,
+        temperature=0.5
+    )
 
     st.markdown("### 💡 Answer")
     st.write(response)
