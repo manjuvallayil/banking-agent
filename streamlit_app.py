@@ -1,3 +1,4 @@
+import os
 import streamlit as st
 import pandas as pd
 import fitz  # PyMuPDF
@@ -6,9 +7,9 @@ from huggingface_hub import InferenceClient
 # Load the token securely from Streamlit Secrets
 hf_token = st.secrets["HUGGINGFACEHUB_API_TOKEN"]
 
-# Initialize the Hugging Face InferenceClient with the GPT-2 model
+# Initialize the Hugging Face InferenceClient with a supported model
 client = InferenceClient(
-    model="gpt2",
+    model="google/flan-t5-small",
     token=hf_token
 )
 
@@ -48,7 +49,7 @@ if uploaded_file and query:
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
     # Get the response from Hugging Face Inference API
-    response = client.text_generation(
+    response = client.text2text_generation(
         prompt=prompt,
         max_new_tokens=150,
         temperature=0.5
