@@ -48,11 +48,11 @@ if uploaded_file and query:
     prompt = f"""You are a banking analyst. Here is a bank statement:\n{context}\n\nQuestion: {query}"""
 
     # Get the response from Hugging Face Inference API
-    response = client.text_generation(
-        prompt=prompt,
-        max_new_tokens=200,
-        temperature=0.5
-    )
+    response = client.text2text_generation(
+    prompt=prompt,
+    max_new_tokens=200,
+    temperature=0.5
+)
 
     st.markdown("### 💡 Answer")
     st.write(response)
